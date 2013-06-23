@@ -68,7 +68,7 @@ public class Var2Regexp {
     }
 
     private String convertBodyWithVarToBodyWithRegexp(List<VarRegexp> varAsRegexp) {
-        String bodyWithVarsRegexp = bodyWithVars ;
+        String bodyWithVarsRegexp = new String(bodyWithVars) ;
         for (VarRegexp varRegexp : varAsRegexp) {
             bodyWithVarsRegexp = bodyWithVarsRegexp.replaceFirst(VarRegexp.formatVarWithPlaceHolderEscaped(varRegexp.getVarName()), "(.*)");
             bodyWithVarsRegexp = bodyWithVarsRegexp.replaceAll(VarRegexp.formatVarWithPlaceHolderEscaped(varRegexp.getVarName()), "\\\\"+varRegexp.getGroupIndex());
