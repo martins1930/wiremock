@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.vars.VarInRequest;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class LoggedRequest implements Request {
@@ -144,5 +145,17 @@ public class LoggedRequest implements Request {
 
     private String format(Date date) {
         return new SimpleDateFormat(DATE_FORMAT).format(date);
+    }
+
+    @Override
+    @JsonIgnore
+    public void setVarInRequest(VarInRequest varInRequestBody) {
+        
+    }
+
+    @Override
+    @JsonIgnore
+    public VarInRequest getVarInRequest() {
+        return null ; 
     }
 }

@@ -20,7 +20,7 @@ configurations {
 
 dependencies {
 	compile "org.mortbay.jetty:jetty:6.1.26"
-	compile "com.google.guava:guava:13.0.1"
+	compile "com.google.guava:guava:14.0.1"
 	compile "com.fasterxml.jackson.core:jackson-core:2.1.2", 
         	"com.fasterxml.jackson.core:jackson-annotations:2.1.2", 
         	"com.fasterxml.jackson.core:jackson-databind:2.1.2"
@@ -143,6 +143,21 @@ artifacts {
      archives javadocJar
 }
 
+task runServer(type: JavaExec) {
+    dependsOn = ['classes']
+    main='com.github.tomakehurst.wiremock.standalone.WireMockServerRunner'
+    classpath sourceSets.main.runtimeClasspath
+}
+
+task debugServer(type: JavaExec) {
+    dependsOn = ['classes']
+    debug = true
+    main='com.github.tomakehurst.wiremock.standalone.WireMockServerRunner'
+    classpath sourceSets.main.runtimeClasspath
+}
+
+
+/*
 signing {
     sign configurations.archives
 }
@@ -195,9 +210,13 @@ uploadArchives {
     }
 }
 
+
+
 task release {
 	dependsOn clean, jarAll, uploadArchives
 }
+
+*/
 
 task 'set-release-dir' << {
 	def console = System.console()

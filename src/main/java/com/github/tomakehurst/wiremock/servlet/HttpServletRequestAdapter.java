@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.ServletContainerUtils;
+import com.github.tomakehurst.wiremock.vars.VarInRequest;
 import com.google.common.io.CharStreams;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,8 @@ public class HttpServletRequestAdapter implements Request {
 	
 	private final HttpServletRequest request;
 	private String cachedBody;
+        
+            private VarInRequest setVarInRequest;
 	
 	public HttpServletRequestAdapter(HttpServletRequest request) {
 		this.request = request;
@@ -139,4 +142,14 @@ public class HttpServletRequestAdapter implements Request {
 	public boolean isBrowserProxyRequest() {
 		return ServletContainerUtils.isBrowserProxyRequest(request);
 	}
+
+    @Override
+    public void setVarInRequest(VarInRequest varInRequestBody) {
+        this.setVarInRequest = varInRequestBody ;
+    }
+    
+    @Override
+    public VarInRequest getVarInRequest() {
+        return this.setVarInRequest ; 
+    }
 }

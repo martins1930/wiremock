@@ -29,6 +29,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.vars.VarInRequest;
+import com.github.tomakehurst.wiremock.vars.VarRegexp;
+import java.util.Map;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
@@ -112,8 +115,32 @@ public class ResponseDefinition {
 	}
 
 	public String getBody() {
+            VarInRequest varInRequest = getOriginalRequest().getVarInRequest();
+            if (existsVarsInRequest(varInRequest)) {
+                Map<String, String> varsValues = varInRequest.getVarsValues();
+                if (body!=null) {
+                    String responseBodyWithVarValues = new String(body,Charset.forName(UTF_8.name())) ;
+                    for (Map.Entry<String, String> currentVar : varsValues.entrySet()) {
+                        String varName = currentVar.getKey();
+                        String varValue = currentVar.getValue();
+                        
+                        responseBodyWithVarValues = responseBodyWithVarValues.replaceAll(VarRegexp.formatVarWithPlaceHolderEscaped(varName), varValue);
+                        
+                    }
+                    return responseBodyWithVarValues;
+                }
+                else {
+                    return null ;
+                }
+            }
+            else {
 		return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
+            }
 	}
+    
+    private boolean existsVarsInRequest(VarInRequest varInRequest) {
+        return varInRequest!=null && varInRequest.getVarsValues()!=null && !varInRequest.getVarsValues().isEmpty();
+    }
 
     @JsonIgnore
     public byte[] getByteBody() {
@@ -166,7 +193,7 @@ public class ResponseDefinition {
 	public void setBodyFileName(final String bodyFileName) {
 		this.bodyFileName = bodyFileName;
 	}
-	
+
 	public boolean wasConfigured() {
         return wasConfigured;
     }
@@ -332,4 +359,6 @@ public class ResponseDefinition {
 	public String toString() {
 		return Json.write(this);
 	}
+
+
 }

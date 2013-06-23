@@ -20,8 +20,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.vars.Var2Regexp;
+import java.util.List;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "request", "response" })
@@ -36,6 +39,7 @@ public class StubMapping {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private Scenario scenario;
+        private List<String> vars ;
 	
 	private long insertionIndex;
 	
@@ -122,6 +126,14 @@ public class StubMapping {
 		this.newScenarioState = newScenarioState;
 	}
 	
+        public List<String> getVars() {
+            return vars;
+        }
+
+        public void setVars(List<String> vars) {
+            this.vars = vars;
+        }        
+        
 	public void updateScenarioStateIfRequired() {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
@@ -157,12 +169,25 @@ public class StubMapping {
 	public boolean requiresCurrentScenarioState() {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
+
+        @JsonIgnore
+        boolean isMatchedBy(Request request) {
+            return getRequest().isMatchedBy(request) ;
+        }
+        
 	
 	public int comparePriorityWith(StubMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
 	}
+
+        
+        @JsonIgnore
+        public void initialize() {
+            Var2Regexp var2Regexp = new Var2Regexp(request.getBodyWithVars(), vars);
+            request.setVarResolver(var2Regexp.createVarResolver());
+        }        
 
 	@Override
 	public int hashCode() {
@@ -246,6 +271,9 @@ public class StubMapping {
 		}
 		return true;
 	}
+
+
+
 
 	
 	

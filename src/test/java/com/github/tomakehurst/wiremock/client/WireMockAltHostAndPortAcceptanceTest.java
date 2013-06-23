@@ -32,7 +32,9 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class WireMockAltHostAndPortAcceptanceTest {
-	
+
+    
+        private static final int PORT = 8099 ;
 	private WireMockServer defaultServer;
 	private WireMockServer altServer;
 	
@@ -40,7 +42,7 @@ public class WireMockAltHostAndPortAcceptanceTest {
 	public void init() {
 		defaultServer = new WireMockServer();
 		defaultServer.start();
-		altServer = new WireMockServer(8081);
+		altServer = new WireMockServer(PORT);
 		altServer.start();
 	}
 	
@@ -53,10 +55,10 @@ public class WireMockAltHostAndPortAcceptanceTest {
 	@Test
 	public void useStaticSyntaxOnAlternativeHostAndPort() throws Exception {
 		WireMockTestClient defaultTestClient = new WireMockTestClient(8080);
-		WireMockTestClient altTestClient = new WireMockTestClient(8081);
+		WireMockTestClient altTestClient = new WireMockTestClient(PORT);
 		
 		String thisHostName = InetAddress.getLocalHost().getHostName();
-		WireMock.configureFor(thisHostName, 8081);
+		WireMock.configureFor(thisHostName, PORT);
 		
 		givenThat(get(urlEqualTo("/resource/on/other/address"))
 				.willReturn(aResponse()

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.vars.VarInRequest;
 import java.util.Set;
 
 public interface Request {
@@ -30,5 +31,8 @@ public interface Request {
 	Set<String> getAllHeaderKeys();
 	String getBodyAsString();
 	boolean isBrowserProxyRequest();
+        
+        void setVarInRequest(VarInRequest varInRequestBody);
+        VarInRequest getVarInRequest() ;
 	
 }

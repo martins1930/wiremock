@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
@@ -35,6 +36,8 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.vars.VarResolver;
+import com.github.tomakehurst.wiremock.vars.VarInRequest;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
@@ -47,6 +50,8 @@ public class RequestPattern {
 	private RequestMethod method;
 	private Map<String, ValuePattern> headerPatterns;
 	private List<ValuePattern> bodyPatterns;
+        private String bodyWithVars ;
+        private VarResolver varResolver;
 	
 	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns) {
 		this.url = url;
@@ -89,7 +94,7 @@ public class RequestPattern {
 				headersMatch(request) &&
 				bodyMatches(request));
 	}
-	
+        
 	private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
 		boolean matched;
@@ -144,18 +149,37 @@ public class RequestPattern {
         })) == 0;
     }
 
-    private boolean bodyMatches(Request request) {
-		if (bodyPatterns == null) {
+    private boolean bodyMatches(Request request) {        
+		if (bodyPatterns == null && bodyWithVars==null) {
 			return true;
 		}
 		
-		boolean matches = all(bodyPatterns, matching(request.getBodyAsString()));
-		
-		if (!matches) {
-			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
-		}
-		
-		return matches;
+                    if (bodyPatterns!=null) {
+                        boolean matches = all(bodyPatterns, matching(request.getBodyAsString()));
+
+                        if (!matches) {
+                                notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
+                        }
+
+                        return matches;
+                    }
+                    else if (bodyWithVars!=null) {
+                        
+                        VarInRequest varInRequestBody = varResolver.resolve(request.getBodyAsString());
+                        boolean matches = varInRequestBody.isBodyMatchRegexp() ;
+                        request.setVarInRequest(varInRequestBody);
+                        
+                        if (!matches) {
+                                notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
+                        }                        
+                        
+                        return matches ;
+                    }
+                    else {
+                        return true ;
+                    }
+                    
+                    
 	}
 	
 	public String getUrlPattern() {
@@ -208,6 +232,26 @@ public class RequestPattern {
 		this.bodyPatterns = bodyPatterns;
 	}
 
+        public String getBodyWithVars() {
+            return bodyWithVars;
+        }
+
+        public void setBodyWithVars(String bodyWithVars) {
+            this.bodyWithVars = bodyWithVars;
+        } 
+
+        @JsonIgnore
+        public VarResolver getVarResolver() {
+            return varResolver;
+        }
+
+        @JsonIgnore
+        public void setVarResolver(VarResolver varResolver) {
+            this.varResolver = varResolver;
+        }
+        
+        
+        
 	@Override
 	public int hashCode() {
 		final int prime = 31;
