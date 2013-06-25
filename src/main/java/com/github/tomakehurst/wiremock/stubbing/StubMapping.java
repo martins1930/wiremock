@@ -56,7 +56,9 @@ public class StubMapping {
 	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 
     public static StubMapping buildFrom(String mappingSpecJson) {
-        return Json.read(mappingSpecJson, StubMapping.class);
+        StubMapping mapping = Json.read(mappingSpecJson, StubMapping.class);
+        mapping.initialize();
+        return mapping;
     }
 
     public static String buildJsonStringFor(StubMapping mapping) {
