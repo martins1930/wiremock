@@ -90,6 +90,7 @@ public class MockRequestBuilder {
 		context.checking(new Expectations() {{
 			allowing(request).getUrl(); will(returnValue(url));
 			allowing(request).getMethod(); will(returnValue(method));
+			allowing(request).getVarInRequest();
 			for (HttpHeader header: headers.all()) {
 				allowing(request).containsHeader(header.key()); will(returnValue(true));
 				allowing(request).getHeader(header.key()); will(returnValue(header.firstValue()));

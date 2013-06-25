@@ -187,8 +187,10 @@ public class StubMapping {
         
         @JsonIgnore
         public void initialize() {
-            Var2Regexp var2Regexp = new Var2Regexp(request.getBodyWithVars(), vars);
-            request.setVarResolver(var2Regexp.createVarResolver());
+            if (request!=null) {
+                Var2Regexp var2Regexp = new Var2Regexp(request.getBodyWithVars(), vars);
+                request.setVarResolver(var2Regexp.createVarResolver());
+            }
         }        
 
 	@Override

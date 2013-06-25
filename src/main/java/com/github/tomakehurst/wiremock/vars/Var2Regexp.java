@@ -38,7 +38,7 @@ public class Var2Regexp {
 
     private List<VarRegexp> getInputVarsAsVarRegexp() {
         List<VarRegexp> varAsRegexp = new LinkedList<VarRegexp>();
-        if (inputVars!=null) {
+        if (inputVars!=null && bodyWithVars!=null) {
             for (String varIter : inputVars) {
 
                 int indexInBodyOfVarIter = bodyWithVars.indexOf(VarRegexp.formatVarWithPlaceHolder(varIter));
@@ -68,7 +68,7 @@ public class Var2Regexp {
     }
 
     private String convertBodyWithVarToBodyWithRegexp(List<VarRegexp> varAsRegexp) {
-        String bodyWithVarsRegexp = new String(bodyWithVars) ;
+        String bodyWithVarsRegexp = ""+bodyWithVars ;
         for (VarRegexp varRegexp : varAsRegexp) {
             bodyWithVarsRegexp = bodyWithVarsRegexp.replaceFirst(VarRegexp.formatVarWithPlaceHolderEscaped(varRegexp.getVarName()), "(.*)");
             bodyWithVarsRegexp = bodyWithVarsRegexp.replaceAll(VarRegexp.formatVarWithPlaceHolderEscaped(varRegexp.getVarName()), "\\\\"+varRegexp.getGroupIndex());

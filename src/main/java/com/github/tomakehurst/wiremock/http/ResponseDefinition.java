@@ -115,9 +115,9 @@ public class ResponseDefinition {
 	}
 
 	public String getBody() {
-            VarInRequest varInRequest = getOriginalRequest().getVarInRequest();
-            if (existsVarsInRequest(varInRequest)) {
-                Map<String, String> varsValues = varInRequest.getVarsValues();
+            Request oriRequest = getOriginalRequest();
+            if (existsVarsInRequest(oriRequest)) {
+                Map<String, String> varsValues = oriRequest.getVarInRequest().getVarsValues();
                 if (body!=null) {
                     String responseBodyWithVarValues = new String(body,Charset.forName(UTF_8.name())) ;
                     for (Map.Entry<String, String> currentVar : varsValues.entrySet()) {
@@ -138,8 +138,10 @@ public class ResponseDefinition {
             }
 	}
     
-    private boolean existsVarsInRequest(VarInRequest varInRequest) {
-        return varInRequest!=null && varInRequest.getVarsValues()!=null && !varInRequest.getVarsValues().isEmpty();
+    private boolean existsVarsInRequest(Request originalRequest) {
+        
+        return originalRequest!=null && originalRequest.getVarInRequest()!=null 
+                && originalRequest.getVarInRequest().getVarsValues()!=null && !originalRequest.getVarInRequest().getVarsValues().isEmpty();
     }
 
     @JsonIgnore
